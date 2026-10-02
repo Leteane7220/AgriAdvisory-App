@@ -1,1 +1,169 @@
-<h1>Welcome to AgriAdvisory App!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mzansi Farmer AI</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F3F9F5;
+            color: #12261A;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            background: #FFFFFF;
+            max-width: 500px;
+            width: 100%;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid #E3F2E8;
+        }
+        h1 {
+            color: #1B5E3A;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-top: 15px;
+            font-weight: 500;
+            color: #2E7D4F;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin-top: 5px;
+            border: 1px solid #A8D5B8;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: #2E7D4F;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 25px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #1B5E3A;
+        }
+        #statusMessage {
+            margin-top: 15px;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Farmer Onboarding</h1>
+    
+    <form id="farmerForm">
+        <label for="farmer_id">Farmer ID</label>
+        <input type="text" id="farmer_id" required placeholder="e.g., farmer_A">
+
+        <label for="province">Province</label>
+        <select id="province" required>
+            <option value="">Select Province</option>
+            <option value="Limpopo">Limpopo</option>
+            <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+            <option value="Mpumalanga">Mpumalanga</option>
+            <option value="Gauteng">Gauteng</option>
+            <!-- Add other provinces here -->
+        </select>
+
+        <label for="crop">Crop</label>
+        <select id="crop" required>
+            <option value="">Select Crop</option>
+            <option value="maize">Maize</option>
+            <option value="tomatoes">Tomatoes</option>
+            <option value="cabbage">Cabbage</option>
+        </select>
+
+        <label for="growth_stage">Growth Stage</label>
+        <select id="growth_stage" required>
+            <option value="Seedling">Seedling</option>
+            <option value="Vegetative">Vegetative</option>
+            <option value="Flowering">Flowering</option>
+            <option value="Harvest-ready">Harvest-ready</option>
+        </select>
+
+        <label for="preferred_language">Language</label>
+        <select id="preferred_language" required>
+            <option value="English">English</option>
+            <option value="isiZulu">isiZulu</option>
+            <option value="Sepedi">Sepedi</option>
+            <option value="Setswana">Setswana</option>
+            <option value="Xitsonga">Xitsonga</option>
+        </select>
+
+        <button type="submit" id="submitBtn">Save Profile</button>
+    </form>
+    
+    <div id="statusMessage"></div>
+</div>
+
+<script>
+    // ⚠️ REPLACE THIS WITH YOUR ACTUAL API GATEWAY INVOKE URL
+    const API_URL = "https://YOUR_API_ID.execute-api.us-east-1.amazonaws.com/dev/profile";
+
+    document.getElementById('farmerForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Stop the page from reloading
+        
+        const submitBtn = document.getElementById('submitBtn');
+        const statusDiv = document.getElementById('statusMessage');
+        
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Saving...";
+        statusDiv.innerText = "";
+
+        // Collect form data
+        const formData = {
+            farmer_id: document.getElementById('farmer_id').value,
+            province: document.getElementById('province').value,
+            crop: document.getElementById('crop').value,
+            growth_stage: document.getElementById('growth_stage').value,
+            preferred_language: document.getElementById('preferred_language').value
+        };
+
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // API Gateway expects the body to be a stringified JSON object
+                body: JSON.stringify({ body: JSON.stringify(formData) })
+            });
+
+            if (response.ok) {
+                statusDiv.style.color = "#2E7D4F"; // Green
+                statusDiv.innerText = "Profile saved successfully!";
+                document.getElementById('farmerForm').reset();
+            } else {
+                throw new Error("Server returned an error");
+            }
+        } catch (error) {
+            console.error(error);
+            statusDiv.style.color = "#C0392B"; // Red
+            statusDiv.innerText = "Failed to save. Check console for details.";
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Save Profile";
+        }
+    });
+</script>
+
+</body>
+</html>
